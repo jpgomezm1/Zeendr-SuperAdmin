@@ -7,7 +7,7 @@ import { login } from '../../redux/authSlice';
 import axios from 'axios';
 
 import logo from '../../assets/logo33.png';
-import backgroundImage from '../../assets/fondo.png';
+import backgroundImage from '../../assets/fondoo.webp';
 
 const LoginForm = () => {
     const [showPassword, setShowPassword] = useState(false);
