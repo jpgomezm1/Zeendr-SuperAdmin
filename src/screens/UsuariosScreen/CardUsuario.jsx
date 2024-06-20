@@ -2,8 +2,10 @@ import React from 'react';
 import { Card, CardContent, CardMedia, Typography, Box, IconButton } from '@mui/material';
 import { styled } from '@mui/system';
 import DeleteIcon from '@mui/icons-material/Delete';
+import LockIcon from '@mui/icons-material/Lock';
+import LockOpenIcon from '@mui/icons-material/LockOpen';
 
-const StyledCard = styled(Card)(({ theme }) => ({
+const StyledCard = styled(Card)(({ theme, usuario }) => ({
   transition: 'transform 0.2s, box-shadow 0.2s',
   '&:hover': {
     transform: 'scale(1.05)',
@@ -11,7 +13,8 @@ const StyledCard = styled(Card)(({ theme }) => ({
   },
   borderRadius: '15px',
   overflow: 'hidden',
-  position: 'relative'
+  position: 'relative',
+  backgroundColor: usuario.role === 'super_admin' ? '#FFD700' : usuario.is_frozen ? '#FF6347' : '#90EE90'
 }));
 
 const CardContentStyled = styled(CardContent)(({ theme }) => ({
@@ -44,12 +47,12 @@ const LogoImage = styled(CardMedia)(({ theme }) => ({
 }));
 
 const capitalizeWords = (str) => {
-    return str.replace(/\b\w/g, char => char.toUpperCase());
+  return str.replace(/\b\w/g, char => char.toUpperCase());
 };
 
-const CardUsuario = ({ usuario, onClick, onDelete }) => {
+const CardUsuario = ({ usuario, onClick, onDelete, onFreezeToggle }) => {
   return (
-    <StyledCard>
+    <StyledCard usuario={usuario}>
       <LogoContainer onClick={() => onClick(usuario)}>
         <LogoImage
           component="img"
@@ -62,6 +65,16 @@ const CardUsuario = ({ usuario, onClick, onDelete }) => {
         <Typography variant="body2" sx={{ color: 'black', fontWeight: 'bold'}}>Establecimiento: {capitalizeWords(usuario.establecimiento)}</Typography>
         <Typography variant="body2" sx={{ color: 'black', fontWeight: 'bold'}}>Tipo de Plan: {usuario.tipo_plan}</Typography>
       </CardContentStyled>
+      <IconButton
+        sx={{ position: 'absolute', top: 8, right: 48 }}
+        onClick={(e) => {
+          e.stopPropagation();
+          onFreezeToggle(usuario);
+        }}
+        disabled={usuario.role === 'super_admin'}
+      >
+        {usuario.is_frozen ? <LockOpenIcon /> : <LockIcon />}
+      </IconButton>
       <IconButton
         sx={{ position: 'absolute', top: 8, right: 8 }}
         onClick={(e) => {
@@ -76,3 +89,4 @@ const CardUsuario = ({ usuario, onClick, onDelete }) => {
 };
 
 export default CardUsuario;
+

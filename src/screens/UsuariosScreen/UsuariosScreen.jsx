@@ -165,10 +165,25 @@ const UsuariosScreen = () => {
     }
   };
 
+  const handleFreezeToggle = async (usuario) => {
+    try {
+      await axios.put(`${process.env.REACT_APP_BACKEND_URL}/usuario/freeze/${usuario.id}`, 
+      { is_frozen: !usuario.is_frozen }, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      fetchUsuarios();
+    } catch (error) {
+      console.error('Error freezing/unfreezing user:', error);
+    }
+  };
+
   // Calcular resumen de usuarios
-  const totalUsuarios = usuarios.filter(usuario => usuario.role !== 'super_admin').length;
-  const totalDomicilios = usuarios.filter(usuario => usuario.tipo_plan === 'Domicilios' && usuario.role !== 'super_admin').length;
-  const totalSoftware = usuarios.filter(usuario => usuario.tipo_plan === 'Software' && usuario.role !== 'super_admin').length;
+  const totalUsuarios = usuarios.filter(usuario => usuario.role !== 'super_admin' && !usuario.is_frozen).length;
+  const totalDomicilios = usuarios.filter(usuario => usuario.tipo_plan === 'Domicilios' && usuario.role !== 'super_admin' && !usuario.is_frozen).length;
+  const totalSoftware = usuarios.filter(usuario => usuario.tipo_plan === 'Software' && usuario.role !== 'super_admin' && !usuario.is_frozen).length;
+  const totalCongelados = usuarios.filter(usuario => usuario.is_frozen && usuario.role !== 'super_admin').length;
 
   if (!authenticated) {
     return (
@@ -186,11 +201,11 @@ const UsuariosScreen = () => {
         Usuarios Registrados
       </Typography>
       <Grid container spacing={2} sx={{ mb: 2 }}>
-        <Grid item xs={12} sm={4}>
+        <Grid item xs={12} sm={3}>
           <SummaryCard>
             <SummaryCardContent>
               <Typography variant="h5">
-                Total Usuarios
+                Total Usuarios Activos
               </Typography>
               <Typography variant="h6">
                 {totalUsuarios}
@@ -198,7 +213,7 @@ const UsuariosScreen = () => {
             </SummaryCardContent>
           </SummaryCard>
         </Grid>
-        <Grid item xs={12} sm={4}>
+        <Grid item xs={12} sm={3}>
           <SummaryCard>
             <SummaryCardContent>
               <Typography variant="h5">
@@ -210,7 +225,7 @@ const UsuariosScreen = () => {
             </SummaryCardContent>
           </SummaryCard>
         </Grid>
-        <Grid item xs={12} sm={4}>
+        <Grid item xs={12} sm={3}>
           <SummaryCard>
             <SummaryCardContent>
               <Typography variant="h5">
@@ -218,6 +233,18 @@ const UsuariosScreen = () => {
               </Typography>
               <Typography variant="h6">
                 {totalSoftware}
+              </Typography>
+            </SummaryCardContent>
+          </SummaryCard>
+        </Grid>
+        <Grid item xs={12} sm={3}>
+          <SummaryCard>
+            <SummaryCardContent>
+              <Typography variant="h5">
+                Cuentas Congeladas
+              </Typography>
+              <Typography variant="h6">
+                {totalCongelados}
               </Typography>
             </SummaryCardContent>
           </SummaryCard>
@@ -242,7 +269,7 @@ const UsuariosScreen = () => {
       <Grid container spacing={2}>
         {usuarios.map((usuario) => (
           <Grid item xs={12} sm={6} md={4} key={usuario.id}>
-            <CardUsuario usuario={usuario} onClick={handleCardClick} onDelete={handleDeleteClick} />
+            <CardUsuario usuario={usuario} onClick={handleCardClick} onDelete={handleDeleteClick} onFreezeToggle={handleFreezeToggle} />
           </Grid>
         ))}
       </Grid>
@@ -278,5 +305,3 @@ const UsuariosScreen = () => {
 };
 
 export default UsuariosScreen;
-
-
