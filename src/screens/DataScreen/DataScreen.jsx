@@ -1,22 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Box, CircularProgress, Typography } from '@mui/material';
 import SalesChart from './charts/SalesChart';
 import TransactionCountChart from './charts/TransactionCountChart';
 import SalesDataViewer from './SalesDataViewer';
 import SummaryKPI from './SummaryKPI';
 import deliveryCosts from '../../data/barrios';
+import { apiClient } from '../../apiClient';
 
 const DataScreen = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const apiBaseUrl = process.env.REACT_APP_BACKEND_URL;
-
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const ordersResponse = await axios.get(`${apiBaseUrl}/pedidos`);
+        const ordersResponse = await apiClient.get('/pedidos');
         console.log('Orders data:', ordersResponse.data); // <-- Verificar los datos aquí
         setOrders(ordersResponse.data);
       } catch (error) {
@@ -27,7 +25,7 @@ const DataScreen = () => {
     };
 
     fetchOrders();
-  }, [apiBaseUrl]);
+  }, []);
 
   return (
     <Box sx={{ p: 4 }}>

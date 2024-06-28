@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Box, Button, Grid, Typography, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Card, CardContent } from '@mui/material';
 import { useSelector } from 'react-redux';
 import CardUsuario from './CardUsuario';
@@ -7,6 +6,7 @@ import DialogUsuario from './DialogUsuario';
 import AuthDialog from './AuthDialog';
 import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
 import { styled } from '@mui/system';
+import { apiClient } from '../../apiClient';
 
 const SummaryCard = styled(Card)(({ theme }) => ({
   backgroundColor: '#5E56FB',
@@ -66,11 +66,7 @@ const UsuariosScreen = () => {
 
   const fetchUsuarios = async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/usuarios`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
+      const response = await apiClient.get('/usuarios');
       setUsuarios(response.data);
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -98,11 +94,7 @@ const UsuariosScreen = () => {
 
   const handleRegister = async () => {
     try {
-      await axios.post(`${process.env.REACT_APP_BACKEND_URL}/register`, newUser, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
+      await apiClient.post('/register', newUser);
       setOpen(false);
       setNewUser({
         username: '',
@@ -137,11 +129,7 @@ const UsuariosScreen = () => {
 
   const handleDeleteConfirm = async () => {
     try {
-      await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/usuario/${userToDelete.id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
+      await apiClient.delete(`/usuario/${userToDelete.id}`);
       setDeleteDialogOpen(false);
       setUserToDelete(null);
       fetchUsuarios();
@@ -167,12 +155,7 @@ const UsuariosScreen = () => {
 
   const handleFreezeToggle = async (usuario) => {
     try {
-      await axios.put(`${process.env.REACT_APP_BACKEND_URL}/usuario/freeze/${usuario.id}`, 
-      { is_frozen: !usuario.is_frozen }, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
+      await apiClient.put(`/usuario/freeze/${usuario.id}`, { is_frozen: !usuario.is_frozen });
       fetchUsuarios();
     } catch (error) {
       console.error('Error freezing/unfreezing user:', error);
