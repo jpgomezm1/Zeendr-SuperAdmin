@@ -20,26 +20,9 @@ import axios from 'axios';
 import { useSelector } from 'react-redux';
 
 // Funciones para extraer nombres de usuario de las URLs
-const extractInstagramUsername = (url) => {
-  if (!url) return '@';
-  const match = url.match(/instagram\.com\/([^/]+)/);
-  return match ? `@${match[1]}` : '@';
-};
-
-const extractTiktokUsername = (url) => {
-  if (!url) return '@';
-  const match = url.match(/tiktok\.com\/@([^/]+)/);
-  return match ? `@${match[1]}` : '@';
-};
-
-const extractWhatsappNumber = (url) => {
+const extractUsername = (url, baseUrl) => {
   if (!url) return '';
-  const match = url.match(/wa\.me\/(\d+)/);
-  if (match) {
-    const number = match[1];
-    return `(+${number.slice(0, 2)})-${number.slice(2, 5)}-${number.slice(5, 8)}-${number.slice(8)}`;
-  }
-  return '';
+  return url.replace(baseUrl, '').replace('/', '');
 };
 
 const SectionTitle = styled(Typography)(({ theme }) => ({
@@ -79,8 +62,15 @@ const DialogUsuario = ({ open, handleClose, selectedUsuario, newUser, handleInpu
   };
 
   const handleUpdate = async () => {
+    const updatedUser = {
+      ...editUser,
+      instagram_username: extractUsername(editUser.instagram_url || '', 'https://www.instagram.com/'),
+      tiktok_username: extractUsername(editUser.tiktok_url || '', 'https://www.tiktok.com/@'),
+      whatsapp_number: (editUser.whatsapp_url || '').replace('https://wa.me/', '')
+    };
+
     try {
-      await axios.put(`${process.env.REACT_APP_BACKEND_URL}/usuario/${editUser.id}`, editUser, {
+      await axios.put(`${process.env.REACT_APP_BACKEND_URL}/usuario/${editUser.id}`, updatedUser, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -188,30 +178,30 @@ const DialogUsuario = ({ open, handleClose, selectedUsuario, newUser, handleInpu
               onChange={handleEditInputChange}
               fullWidth
             />
-            <InfoTypography variant="body2">Instagram: {extractInstagramUsername(editUser.instagram_url)}</InfoTypography>
+            <InfoTypography variant="body2">Instagram:</InfoTypography>
             <TextField
               margin="dense"
               label="Instagram Username"
               name="instagram_url"
-              value={editUser.instagram_url}
+              value={extractUsername(editUser.instagram_url || '', 'https://www.instagram.com/')}
               onChange={handleEditInputChange}
               fullWidth
             />
-            <InfoTypography variant="body2">Tiktok: {extractTiktokUsername(editUser.tiktok_url)}</InfoTypography>
+            <InfoTypography variant="body2">Tiktok:</InfoTypography>
             <TextField
               margin="dense"
               label="Tiktok Username"
               name="tiktok_url"
-              value={editUser.tiktok_url}
+              value={extractUsername(editUser.tiktok_url || '', 'https://www.tiktok.com/@')}
               onChange={handleEditInputChange}
               fullWidth
             />
-            <InfoTypography variant="body2">Whatsapp: {extractWhatsappNumber(editUser.whatsapp_url)}</InfoTypography>
+            <InfoTypography variant="body2">Whatsapp:</InfoTypography>
             <TextField
               margin="dense"
               label="Whatsapp Number"
               name="whatsapp_url"
-              value={editUser.whatsapp_url}
+              value={(editUser.whatsapp_url || '').replace('https://wa.me/', '')}
               onChange={handleEditInputChange}
               fullWidth
             />
@@ -539,3 +529,4 @@ const DialogUsuario = ({ open, handleClose, selectedUsuario, newUser, handleInpu
 };
 
 export default DialogUsuario;
+
