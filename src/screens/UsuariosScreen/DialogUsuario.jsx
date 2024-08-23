@@ -112,6 +112,23 @@ const DialogUsuario = ({ open, handleClose, selectedUsuario, newUser, handleInpu
               onChange={handleEditInputChange}
               fullWidth
             />
+            {/* Nuevos campos para notificación */}
+            <TextField
+              margin="dense"
+              label="Correo de Notificación"
+              name="notificacion_email"
+              value={editUser.notificacion_email}
+              onChange={handleEditInputChange}
+              fullWidth
+            />
+            <TextField
+              margin="dense"
+              label="Teléfono de Notificación"
+              name="notificacion_telefono"
+              value={editUser.notificacion_telefono}
+              onChange={handleEditInputChange}
+              fullWidth
+            />
             <Divider />
             <SectionTitle variant="h6">Imágenes y Redes Sociales</SectionTitle>
             <InfoTypography variant="body2">Logo:</InfoTypography>
@@ -350,6 +367,23 @@ const DialogUsuario = ({ open, handleClose, selectedUsuario, newUser, handleInpu
               onChange={handleInputChange}
               fullWidth
             />
+            {/* Nuevos campos para notificación */}
+            <TextField
+              margin="dense"
+              label="Correo de Notificación"
+              name="notificacion_email"
+              value={newUser.notificacion_email}
+              onChange={handleInputChange}
+              fullWidth
+            />
+            <TextField
+              margin="dense"
+              label="Teléfono de Notificación"
+              name="notificacion_telefono"
+              value={newUser.notificacion_telefono}
+              onChange={handleInputChange}
+              fullWidth
+            />
             <Divider />
             <SectionTitle variant="h6">Imágenes y Redes Sociales</SectionTitle>
             <TextField
@@ -529,4 +563,3 @@ const DialogUsuario = ({ open, handleClose, selectedUsuario, newUser, handleInpu
 };
 
 export default DialogUsuario;
-

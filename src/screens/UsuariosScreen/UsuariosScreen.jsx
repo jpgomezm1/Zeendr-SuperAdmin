@@ -54,8 +54,11 @@ const UsuariosScreen = () => {
     custom_dark_color: '',
     custom_hoover_color: '',
     role: 'user',
-    tipo_plan: 'Software'
-  });
+    tipo_plan: 'Software',
+    notificacion_email: '',  // Nuevo campo
+    notificacion_telefono: ''  // Nuevo campo
+});
+
   const token = useSelector((state) => state.auth.token);
 
   useEffect(() => {
@@ -76,7 +79,7 @@ const UsuariosScreen = () => {
   const handleInputChange = (event) => {
     const { name, value } = event.target;
     setNewUser({ ...newUser, [name]: value });
-  };
+};
 
   const handleOpen = () => {
     setOpen(true);
