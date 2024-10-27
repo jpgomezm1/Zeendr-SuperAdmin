@@ -1,5 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Button, Grid, Typography, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Card, CardContent } from '@mui/material';
+import {
+  Box,
+  Button,
+  Grid,
+  Typography,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Card,
+  CardContent,
+  TextField,
+} from '@mui/material';
 import { useSelector } from 'react-redux';
 import CardUsuario from './CardUsuario';
 import DialogUsuario from './DialogUsuario';
@@ -16,7 +29,7 @@ const SummaryCard = styled(Card)(({ theme }) => ({
   transition: 'transform 0.2s, box-shadow 0.2s',
   '&:hover': {
     transform: 'scale(1.05)',
-    boxShadow: '0 15px 30px rgba(0, 0, 0, 0.2)'
+    boxShadow: '0 15px 30px rgba(0, 0, 0, 0.2)',
   },
 }));
 
@@ -25,17 +38,19 @@ const SummaryCardContent = styled(CardContent)(({ theme }) => ({
   flexDirection: 'column',
   justifyContent: 'center',
   alignItems: 'center',
-  height: '100px'
+  height: '100px',
 }));
 
 const UsuariosScreen = () => {
   const [usuarios, setUsuarios] = useState([]);
+  const [filteredUsuarios, setFilteredUsuarios] = useState([]); // Nuevo estado para usuarios filtrados
   const [open, setOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [authDialogOpen, setAuthDialogOpen] = useState(true);
   const [selectedUsuario, setSelectedUsuario] = useState(null);
   const [userToDelete, setUserToDelete] = useState(null);
   const [authenticated, setAuthenticated] = useState(false);
+  const [searchTerm, setSearchTerm] = useState(''); // Estado para el término de búsqueda
   const [newUser, setNewUser] = useState({
     username: '',
     password: '',
@@ -55,9 +70,9 @@ const UsuariosScreen = () => {
     custom_hoover_color: '',
     role: 'user',
     tipo_plan: 'Software',
-    notificacion_email: '',  // Nuevo campo
-    notificacion_telefono: ''  // Nuevo campo
-});
+    notificacion_email: '',
+    notificacion_telefono: '',
+  });
 
   const token = useSelector((state) => state.auth.token);
 
@@ -71,6 +86,7 @@ const UsuariosScreen = () => {
     try {
       const response = await apiClient.get('/usuarios');
       setUsuarios(response.data);
+      setFilteredUsuarios(response.data); // Inicializa usuarios filtrados
     } catch (error) {
       console.error('Error fetching users:', error);
     }
@@ -79,7 +95,7 @@ const UsuariosScreen = () => {
   const handleInputChange = (event) => {
     const { name, value } = event.target;
     setNewUser({ ...newUser, [name]: value });
-};
+  };
 
   const handleOpen = () => {
     setOpen(true);
@@ -117,7 +133,7 @@ const UsuariosScreen = () => {
         custom_dark_color: '',
         custom_hoover_color: '',
         role: 'user',
-        tipo_plan: 'Software'
+        tipo_plan: 'Software',
       });
       fetchUsuarios();
     } catch (error) {
@@ -147,7 +163,6 @@ const UsuariosScreen = () => {
   };
 
   const handleAuth = (password) => {
-    // Aquí se debería implementar una lógica de autenticación más robusta
     if (password === 'Nov2011*') {
       setAuthenticated(true);
       setAuthDialogOpen(false);
@@ -166,10 +181,21 @@ const UsuariosScreen = () => {
   };
 
   // Calcular resumen de usuarios
-  const totalUsuarios = usuarios.filter(usuario => usuario.role !== 'super_admin' && !usuario.is_frozen).length;
-  const totalDomicilios = usuarios.filter(usuario => usuario.tipo_plan === 'Domicilios' && usuario.role !== 'super_admin' && !usuario.is_frozen).length;
-  const totalSoftware = usuarios.filter(usuario => usuario.tipo_plan === 'Software' && usuario.role !== 'super_admin' && !usuario.is_frozen).length;
-  const totalCongelados = usuarios.filter(usuario => usuario.is_frozen && usuario.role !== 'super_admin').length;
+  const totalUsuarios = usuarios.filter((usuario) => usuario.role !== 'super_admin' && !usuario.is_frozen).length;
+  const totalDomicilios = usuarios.filter((usuario) => usuario.tipo_plan === 'Domicilios' && usuario.role !== 'super_admin' && !usuario.is_frozen).length;
+  const totalSoftware = usuarios.filter((usuario) => usuario.tipo_plan === 'Software' && usuario.role !== 'super_admin' && !usuario.is_frozen).length;
+  const totalCongelados = usuarios.filter((usuario) => usuario.is_frozen && usuario.role !== 'super_admin').length;
+
+  // Manejar el cambio de la barra de búsqueda
+  const handleSearchChange = (event) => {
+    const searchValue = event.target.value.toLowerCase();
+    setSearchTerm(searchValue);
+    setFilteredUsuarios(
+      usuarios.filter((usuario) =>
+        usuario.username.toLowerCase().includes(searchValue)
+      )
+    );
+  };
 
   if (!authenticated) {
     return (
@@ -190,48 +216,32 @@ const UsuariosScreen = () => {
         <Grid item xs={12} sm={3}>
           <SummaryCard>
             <SummaryCardContent>
-              <Typography variant="h5">
-                Total Usuarios Activos
-              </Typography>
-              <Typography variant="h6">
-                {totalUsuarios}
-              </Typography>
+              <Typography variant="h5">Total Usuarios Activos</Typography>
+              <Typography variant="h6">{totalUsuarios}</Typography>
             </SummaryCardContent>
           </SummaryCard>
         </Grid>
         <Grid item xs={12} sm={3}>
           <SummaryCard>
             <SummaryCardContent>
-              <Typography variant="h5">
-                Plan Domicilios
-              </Typography>
-              <Typography variant="h6">
-                {totalDomicilios}
-              </Typography>
+              <Typography variant="h5">Plan Domicilios</Typography>
+              <Typography variant="h6">{totalDomicilios}</Typography>
             </SummaryCardContent>
           </SummaryCard>
         </Grid>
         <Grid item xs={12} sm={3}>
           <SummaryCard>
             <SummaryCardContent>
-              <Typography variant="h5">
-                Plan Software
-              </Typography>
-              <Typography variant="h6">
-                {totalSoftware}
-              </Typography>
+              <Typography variant="h5">Plan Software</Typography>
+              <Typography variant="h6">{totalSoftware}</Typography>
             </SummaryCardContent>
           </SummaryCard>
         </Grid>
         <Grid item xs={12} sm={3}>
           <SummaryCard>
             <SummaryCardContent>
-              <Typography variant="h5">
-                Cuentas Congeladas
-              </Typography>
-              <Typography variant="h6">
-                {totalCongelados}
-              </Typography>
+              <Typography variant="h5">Cuentas Congeladas</Typography>
+              <Typography variant="h6">{totalCongelados}</Typography>
             </SummaryCardContent>
           </SummaryCard>
         </Grid>
@@ -246,16 +256,29 @@ const UsuariosScreen = () => {
           backgroundColor: '#5E56FB',
           color: 'white',
           borderRadius: '10px',
-          '&:hover': { backgroundColor: '#7b45a1' }
+          '&:hover': { backgroundColor: '#7b45a1' },
         }}
         startIcon={<PersonAddAltIcon />}
       >
         Registrar Nuevo Usuario
       </Button>
+      <TextField
+        label="Buscar usuario por nombre"
+        variant="outlined"
+        fullWidth
+        value={searchTerm}
+        onChange={handleSearchChange}
+        sx={{ mb: 3 }}
+      />
       <Grid container spacing={2}>
-        {usuarios.map((usuario) => (
+        {filteredUsuarios.map((usuario) => (
           <Grid item xs={12} sm={6} md={4} key={usuario.id}>
-            <CardUsuario usuario={usuario} onClick={handleCardClick} onDelete={handleDeleteClick} onFreezeToggle={handleFreezeToggle} />
+            <CardUsuario
+              usuario={usuario}
+              onClick={handleCardClick}
+              onDelete={handleDeleteClick}
+              onFreezeToggle={handleFreezeToggle}
+            />
           </Grid>
         ))}
       </Grid>
@@ -267,10 +290,7 @@ const UsuariosScreen = () => {
         handleInputChange={handleInputChange}
         handleRegister={handleRegister}
       />
-      <Dialog
-        open={deleteDialogOpen}
-        onClose={handleDeleteCancel}
-      >
+      <Dialog open={deleteDialogOpen} onClose={handleDeleteCancel}>
         <DialogTitle>Confirmar Eliminación</DialogTitle>
         <DialogContent>
           <DialogContentText>
@@ -291,5 +311,3 @@ const UsuariosScreen = () => {
 };
 
 export default UsuariosScreen;
-
-
